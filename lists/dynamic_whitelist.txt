@@ -1,2 +1,6 @@
 rutracker.org
 rsload.net
+lh3.googleusercontent.com
+js.stripe.com
+play-lh.googleusercontent.com
+youtu.be
