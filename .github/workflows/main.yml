@@ -1,7 +1,16 @@
 name: Add Rules to Cloudflare Gateway
+
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'  # Запуск каждый день в полночь
+  workflow_dispatch:  # Вручную запускаемый триггер
+  
 jobs:
   run:
     name: Cloudflare Gateway
