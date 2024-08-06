@@ -6,3 +6,6 @@ js.stripe.com
 play-lh.googleusercontent.com
 youtu.be
 rt.pornhub.com
+google.com
+accounts.google.com
+gstatic.com
