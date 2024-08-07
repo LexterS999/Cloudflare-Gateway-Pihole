@@ -14,3 +14,4 @@
 @@||cloudflareinsights.com
 @@||static.cloudflareinsights.com
 @@||static.rutracker.cc
+@@||rutracker.cc
