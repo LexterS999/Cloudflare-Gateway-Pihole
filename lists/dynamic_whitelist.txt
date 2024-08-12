@@ -20,6 +20,7 @@ dash.cloudflare.com
 blog.cloudflare.com
 dash.teams.cloudflare.com
 cloudflare.com
+seasonvar.ru
 cdnjs.cloudflare.com
 api.twitter.com
 comss.ru
