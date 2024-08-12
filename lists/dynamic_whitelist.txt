@@ -11,7 +11,13 @@
 @@||pornhub.com^
 @@||videosgay.me^
 @@||freepornhdonlinegay.com^
-@@||cloudflareinsights.com
-@@||static.cloudflareinsights.com
-@@||static.rutracker.cc
-@@||rutracker.cc
+@@||cloudflareinsights.com^
+@@||static.cloudflareinsights.com^
+@@||static.rutracker.cc^
+@@||rutracker.cc^
+@@||gates.cloudflare.com^
+@@||facvicon-www.youtube.com^
+@@||youtube.com^
+@@||platform.dash.cloudflare.com^
+@@||one.dash.cloudflare.com^
+@@||api.twitter.com^
