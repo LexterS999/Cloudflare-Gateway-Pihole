@@ -21,3 +21,8 @@
 @@||platform.dash.cloudflare.com^
 @@||one.dash.cloudflare.com^
 @@||api.twitter.com^
+@@||comss.ru^
+@@||accounts.youtube.com^
+@@||accounts.google.com^
+@@||github.githubassets.com^
+@@||githubassets.com^
