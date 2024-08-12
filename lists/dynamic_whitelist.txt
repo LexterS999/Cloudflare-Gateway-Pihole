@@ -20,6 +20,10 @@ facvicon-www.youtube.com
 youtube.com
 platform.dash.cloudflare.com
 one.dash.cloudflare.com
+dash.cloudflare.com
+blog.cloudflare.com
+dash.teams.cloudflare.com
+cloudflare.com
 api.twitter.com
 comss.ru
 accounts.youtube.com
