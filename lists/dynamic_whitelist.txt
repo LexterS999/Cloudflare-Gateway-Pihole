@@ -26,3 +26,6 @@
 @@||accounts.google.com^
 @@||github.githubassets.com^
 @@||githubassets.com^
+@@||blackhatworld.com^
+@@||cdnjs.cloudflare.com^
+@@||i.imgur.com^
