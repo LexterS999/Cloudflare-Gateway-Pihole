@@ -1,9 +1,8 @@
 name: Add Rules to Cloudflare Gateway
-
 on:
   schedule:
-    - cron: '0 0 * * *'  # Запуск каждый день в два часа ночи
-  workflow_dispatch:  # Позволяет запускать рабочий процесс вручную
+  - cron: '0 2 * * *' # Запуск каждый день в два часа ночи
+  workflow_dispatch: # Позволяет запускать рабочий процесс вручную
   
 jobs:
   run:
