@@ -15,14 +15,24 @@ from src import info, silent_error, error, RATE_LIMIT_INTERVAL, CF_IDENTIFIER, C
 class HTTPException(Exception):
     pass
 
-def cloudflare_gateway_request(method: str, endpoint: str, body: Optional[str] = None, timeout: int = 10) -> Tuple[int, dict]:
+def cloudflare_gateway_request(
+    method: str,
+    endpoint: str,
+    body: Optional[str] = None,
+    connect_timeout: int = 6,  # Таймаут для соединения
+    read_timeout: int = 12,  # Таймаут для чтения данных
+) -> Tuple[int, dict]:
     context = ssl.create_default_context()
-    conn = http.client.HTTPSConnection("api.cloudflare.com", context=context, timeout=timeout)
+    conn = http.client.HTTPSConnection(
+        "api.cloudflare.com",
+        context=context,
+        timeout=connect_timeout,  # Используем connect_timeout для соединения
+    )
 
     headers = {
         "Authorization": f"Bearer {CF_API_TOKEN}",
         "Content-Type": "application/json",
-        "Accept-Encoding": "gzip, deflate"
+        "Accept-Encoding": "gzip, deflate",
     }
 
     url = f"/client/v4/accounts/{CF_IDENTIFIER}/gateway{endpoint}"
@@ -31,15 +41,19 @@ def cloudflare_gateway_request(method: str, endpoint: str, body: Optional[str] =
     try:
         conn.request(method, url, body, headers)
         response = conn.getresponse()
+
+        # Устанавливаем таймаут для чтения данных
+        response.setTimeout(read_timeout)
+
         data = response.read()
         status = response.status
 
-        content_encoding = response.getheader('Content-Encoding')
-        if content_encoding == 'gzip':
+        content_encoding = response.getheader("Content-Encoding")
+        if content_encoding == "gzip":
             buf = BytesIO(data)
             with gzip.GzipFile(fileobj=buf) as f:
                 data = f.read()
-        elif content_encoding == 'deflate':
+        elif content_encoding == "deflate":
             data = zlib.decompress(data)
 
         if status >= 400:
@@ -50,9 +64,14 @@ def cloudflare_gateway_request(method: str, endpoint: str, body: Optional[str] =
                 silent_error(error_message)
             raise HTTPException(error_message)
 
-        return status, json.loads(data.decode('utf-8'))
+        return status, json.loads(data.decode("utf-8"))
 
-    except (http.client.HTTPException, ssl.SSLError, socket.timeout, OSError) as e:
+    except (
+        http.client.HTTPException,
+        ssl.SSLError,
+        socket.timeout,
+        OSError,
+    ) as e:
         error_message = f"Network error occurred: {e}"
         info(error_message)
         raise HTTPException(error_message)
