@@ -35,5 +35,6 @@ pornhub.com
 videosgay.me
 i.instagram.com
 instagram.com
+static.cdninstagram.com
 twitter.com
 api-stream.twitter.com
