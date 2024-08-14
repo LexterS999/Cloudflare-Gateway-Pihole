@@ -34,6 +34,8 @@ rt.pornhub.com
 pornhub.com
 videosgay.me
 i.instagram.com
+scontent-arn2-1.cdninstagram.com
+cdninstagram.com
 instagram.com
 static.cdninstagram.com
 twitter.com
