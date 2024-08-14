@@ -12,21 +12,23 @@ from functools import wraps
 from typing import Optional, Tuple
 from src import info, silent_error, error, RATE_LIMIT_INTERVAL, CF_IDENTIFIER, CF_API_TOKEN
 
+
 class HTTPException(Exception):
     pass
+
 
 def cloudflare_gateway_request(
     method: str,
     endpoint: str,
     body: Optional[str] = None,
-    connect_timeout: int = 6,  # Таймаут для соединения
-    read_timeout: int = 12,  # Таймаут для чтения данных
+    connect_timeout: int = 5,  # Таймаут для соединения
+    read_timeout: int = 10,  # Таймаут для чтения данных
 ) -> Tuple[int, dict]:
     context = ssl.create_default_context()
     conn = http.client.HTTPSConnection(
         "api.cloudflare.com",
         context=context,
-        timeout=connect_timeout,  # Используем connect_timeout для соединения
+        timeout=read_timeout  # Устанавливаем read_timeout здесь
     )
 
     headers = {
@@ -41,9 +43,6 @@ def cloudflare_gateway_request(
     try:
         conn.request(method, url, body, headers)
         response = conn.getresponse()
-
-        # Устанавливаем таймаут для чтения данных
-        response.setTimeout(read_timeout)
 
         data = response.read()
         status = response.status
@@ -82,14 +81,18 @@ def cloudflare_gateway_request(
     finally:
         conn.close()
 
+
 def stop_never(attempt_number):
     return False
+
 
 def wait_random_exponential(attempt_number, multiplier=1, max_wait=10):
     return min(multiplier * (2 ** random.uniform(0, attempt_number - 1)), max_wait)
 
+
 def retry_if_exception_type(exceptions):
     return lambda e: isinstance(e, exceptions)
+
 
 def retry(stop=None, wait=None, retry=None, after=None, before_sleep=None):
     def decorator(func):
@@ -104,26 +107,30 @@ def retry(stop=None, wait=None, retry=None, after=None, before_sleep=None):
                     if retry and not retry(e):
                         raise
                     if after:
-                        after({'attempt_number': attempt_number, 'outcome': e})
+                        after({"attempt_number": attempt_number, "outcome": e})
                     if stop and stop(attempt_number):
                         raise
                     if before_sleep:
-                        before_sleep({'attempt_number': attempt_number})
+                        before_sleep({"attempt_number": attempt_number})
                     wait_time = wait(attempt_number) if wait else 1
                     time.sleep(wait_time)
+
         return wrapper
+
     return decorator
 
+
 retry_config = {
-    'stop': stop_never,
-    'wait': lambda attempt_number: wait_random_exponential(
+    "stop": stop_never,
+    "wait": lambda attempt_number: wait_random_exponential(
         attempt_number, multiplier=1, max_wait=10
     ),
-    'retry': retry_if_exception_type((HTTPException,)),
-    'before_sleep': lambda retry_state: info(
+    "retry": retry_if_exception_type((HTTPException,)),
+    "before_sleep": lambda retry_state: info(
         f"Sleeping before next retry ({retry_state['attempt_number']})"
-    )
+    ),
 }
+
 
 class RateLimiter:
     def __init__(self, interval):
@@ -138,11 +145,14 @@ class RateLimiter:
             time.sleep(sleep_time)
         self.timestamp = time.time()
 
+
 rate_limiter = RateLimiter(RATE_LIMIT_INTERVAL)
+
 
 def rate_limited_request(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         rate_limiter.wait_for_next_request()
         return func(*args, **kwargs)
+
     return wrapper
