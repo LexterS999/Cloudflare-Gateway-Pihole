@@ -9,6 +9,7 @@ PREFIX = "AdBlock-DNS-Filters"
 
 # Read .env variables 
 def dot_env(file_path=".env"):
+    """Читает переменные окружения из файла .env."""
     env_vars = {}
     if os.path.exists(file_path):
         with open(file_path) as f:
@@ -40,11 +41,14 @@ domain_pattern = re.compile(r"^(?!-)[a-zA-Z0-9-]{1,63}(?:\.(?!-)[a-zA-Z0-9-]{1,6
 
 # Logging functions
 def error(message):
+    """Выводит сообщение об ошибке и завершает программу."""
     logger.error(message)
     exit(1)
 
 def silent_error(message):
+    """Выводит сообщение об ошибке без завершения программы."""
     logger.warning(message)
 
 def info(message):
+    """Выводит информационное сообщение."""
     logger.info(message)
