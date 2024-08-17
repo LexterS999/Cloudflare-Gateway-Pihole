@@ -24,11 +24,12 @@ def cloudflare_gateway_request(
     connect_timeout: int = 5,  # Таймаут для соединения
     read_timeout: int = 10,  # Таймаут для чтения данных
 ) -> Tuple[int, dict]:
+    """Отправляет запрос к Cloudflare Gateway API."""
     context = ssl.create_default_context()
     conn = http.client.HTTPSConnection(
         "api.cloudflare.com",
         context=context,
-        timeout=read_timeout  # Устанавливаем read_timeout здесь
+        timeout=read_timeout
     )
 
     headers = {
@@ -63,7 +64,12 @@ def cloudflare_gateway_request(
                 silent_error(error_message)
             raise HTTPException(error_message)
 
-        return status, json.loads(data.decode("utf-8"))
+        try:
+            return status, json.loads(data.decode("utf-8"))
+        except json.JSONDecodeError:
+            error_message = f"Failed to decode JSON response: {data.decode('utf-8', errors='ignore')} for url: {full_url}"
+            info(error_message)
+            raise HTTPException(error_message)
 
     except (
         http.client.HTTPException,
@@ -74,10 +80,7 @@ def cloudflare_gateway_request(
         error_message = f"Network error occurred: {e}"
         info(error_message)
         raise HTTPException(error_message)
-    except json.JSONDecodeError:
-        error_message = "Failed to decode JSON response"
-        info(error_message)
-        raise HTTPException(error_message)
+
     finally:
         conn.close()
 
