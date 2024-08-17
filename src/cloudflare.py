@@ -30,7 +30,7 @@ def update_list(list_id, remove_items, append_items):
     start_time = time.time()
     endpoint = f"/lists/{list_id}"
     data = {
-        "remove": remove_items,
+        "remove": list(remove_items),  # Преобразование в список
         "append": [{"value": domain} for domain in append_items]
     }
     status, response = cloudflare_gateway_request("PATCH", endpoint, body=json.dumps(data))
