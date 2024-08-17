@@ -1,9 +1,9 @@
-# domains.py
 import os
 import http.client
 from urllib.parse import urlparse, urljoin
 from configparser import ConfigParser
 from src import info, convert, silent_error
+
 
 def read_urls_from_file(filename):
     """Читает URL-адреса из файла, определяя тип файла (INI или текстовый)."""
@@ -16,12 +16,14 @@ def read_urls_from_file(filename):
             if first_line.startswith("["):  # Проверяем, похоже ли на INI
                 config = ConfigParser()
                 config.read_file(file)
-                urls.extend(config.get(section, key) 
-                             for section in config.sections() 
-                             for key in config.options(section) 
-                             if not key.startswith("#"))
+                for section in config.sections():
+                    for key in config.options(section):
+                        if not key.startswith("#"):
+                            urls.append(config.get(section, key))
             else:  # Читаем как обычный текстовый файл
-                urls = [url.strip() for url in file if url.strip() and not url.startswith("#")]
+                urls = [
+                    url.strip() for url in file if not url.startswith("#") and url.strip()
+                ]
     except Exception as e:
         silent_error(f"Error reading URLs from file {filename}: {e}")
     return urls
@@ -48,14 +50,18 @@ def download_file(url):
         conn.request("GET", parsed_url.path, headers=headers)
         response = conn.getresponse()
 
-        # Обработка редиректов
         while response.status in (301, 302, 303, 307, 308):
             location = response.getheader('Location')
             if not location:
                 break
-            location = urljoin(url, location) if not urlparse(location).netloc else location
+
+            if not urlparse(location).netloc:
+                location = urljoin(url, location)
+
             url = location
             parsed_url = urlparse(url)
+
+            # Используем существующее соединение для редиректа
             conn.request("GET", parsed_url.path, headers=headers)
             response = conn.getresponse()
 
@@ -97,21 +103,27 @@ class DomainConverter:
 
     def process_urls(self):
         """Загружает и конвертирует списки доменов."""
-        block_content = "".join(download_file(url) for url in self.adlist_urls)
-        white_content = "".join(download_file(url) for url in self.whitelist_urls)
+        block_content = ""
+        white_content = ""
+        for url in self.adlist_urls:
+            block_content += download_file(url)
+        for url in self.whitelist_urls:
+            white_content += download_file(url)
 
-        # Чтение динамических списков
-        for key, file_path in (("DYNAMIC_BLACKLIST", block_content), ("DYNAMIC_WHITELIST", white_content)):
-            content = os.getenv(key, "")
-            if content:
-                content += content
-            else:
-                try:
-                    with open(self.env_file_map[key], "r") as f:
-                        content += f.read()
-                except Exception as e:
-                    silent_error(f"Error reading {key}: {e}")
+        dynamic_blacklist = os.getenv("DYNAMIC_BLACKLIST", "")
+        dynamic_whitelist = os.getenv("DYNAMIC_WHITELIST", "")
+
+        if dynamic_blacklist:
+            block_content += dynamic_blacklist
+        else:
+            with open(self.env_file_map["DYNAMIC_BLACKLIST"], "r") as black_file:
+                block_content += black_file.read()
+
+        if dynamic_whitelist:
+            white_content += dynamic_whitelist
+        else:
+            with open(self.env_file_map["DYNAMIC_WHITELIST"], "r") as white_file:
+                white_content += white_file.read()
 
         domains = convert.convert_to_domain_list(block_content, white_content)
-        info(f"Processed {len(domains)} domains.")
         return domains
