@@ -1,10 +1,9 @@
-name: Update Cloudflare Gateway Rules
-
+name: Add Rules to Cloudflare Gateway
 on:
   schedule:
   - cron: '0 2 * * *' # Запуск каждый день в два часа ночи
   workflow_dispatch: # Позволяет запускать рабочий процесс вручную
-
+  
 jobs:
   run:
     name: Cloudflare Gateway
@@ -21,18 +20,18 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3 # Использование последней версии
+        uses: actions/checkout@main
         with:
           fetch-depth: 0
-
+          
       - name: Install Python
-        uses: actions/setup-python@v4 # Использование последней версии
+        uses: actions/setup-python@main
         with:
           python-version: 3.11
-
-      - name: Update Cloudflare Gateway Zero Trust Rules
+        
+      - name: Cloudflare Gateway Zero Trust 
         run: python -m src run
-
+          
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2
         with:
