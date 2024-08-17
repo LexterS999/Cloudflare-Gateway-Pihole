@@ -3,7 +3,7 @@ import time
 from src.requests import (
     cloudflare_gateway_request, retry, rate_limited_request, retry_config
 )
-
+from src import info
 
 @retry(**retry_config)
 @rate_limited_request
