@@ -74,7 +74,7 @@ def download_file(url):
         return data
     except Exception as e:
         silent_error(f"Error downloading file from {url}: {e}")
-        return ""
+        return "" # Возвращаем пустую строку в случае ошибки
     finally:
         if conn:
             conn.close()
@@ -116,14 +116,21 @@ class DomainConverter:
         if dynamic_blacklist:
             block_content += dynamic_blacklist
         else:
-            with open(self.env_file_map["DYNAMIC_BLACKLIST"], "r") as black_file:
-                block_content += black_file.read()
+            try:
+                with open(self.env_file_map["DYNAMIC_BLACKLIST"], "r") as black_file:
+                    block_content += black_file.read()
+            except Exception as e:
+                silent_error(f"Error reading dynamic blacklist: {e}")
 
         if dynamic_whitelist:
             white_content += dynamic_whitelist
         else:
-            with open(self.env_file_map["DYNAMIC_WHITELIST"], "r") as white_file:
-                white_content += white_file.read()
+            try:
+                with open(self.env_file_map["DYNAMIC_WHITELIST"], "r") as white_file:
+                    white_content += white_file.read()
+            except Exception as e:
+                silent_error(f"Error reading dynamic whitelist: {e}")
 
         domains = convert.convert_to_domain_list(block_content, white_content)
+        info(f"Processed {len(domains)} domains.") # Добавлено логирование количества доменов
         return domains
