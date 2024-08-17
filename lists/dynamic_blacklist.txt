@@ -1,3 +1,4 @@
-yandex.ru
-yandex.net
-ad.yandex.ru
+||yandex.ru^
+||yandex.net^
+||ad.yandex.ru^
+||ads.yandex.com^
