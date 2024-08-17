@@ -6,7 +6,6 @@ from src import (
 )
 
 def convert_to_domain_list(block_content: str, white_content: str) -> list[str]:
-    """Конвертирует содержимое файлов блокировки и белого списка в список доменов."""
     white_domains = set()
     block_domains = set()
 
@@ -23,7 +22,6 @@ def convert_to_domain_list(block_content: str, white_content: str) -> list[str]:
     return final_domains
 
 def extract_domains(content: str, domains: set[str]) -> None:
-    """Извлекает домены из текста, игнорируя комментарии и IP-адреса."""
     for line in content.splitlines():
         if line.startswith(("#", "!", "/")) or line == "":
             continue
@@ -38,7 +36,6 @@ def extract_domains(content: str, domains: set[str]) -> None:
             pass
             
 def remove_subdomains_if_higher(domains: set[str]) -> set[str]:
-    """Удаляет поддомены, если домен более высокого уровня уже присутствует в списке."""
     top_level_domains = set()
     
     for domain in domains:
